@@ -8,7 +8,7 @@ section .text                       ; указываем, что дальше и
 _start:                             ; сама метка точки входа
 """
 
-program_epilog = """
+program_epilog = """\
     mov rax, 60                     ; кладём номер системного вызова для возврата из программы в регистр rax
     syscall                         ; вызываем выход
 """
@@ -36,6 +36,7 @@ def read_file(path):
 
     return data
 
+
 def write_program(program, path):
     """Записывает программу-список в файл, склеивая её в одну строку"""
 
@@ -43,17 +44,21 @@ def write_program(program, path):
     with open(path, 'w') as file:
         file.write("".join(program))
 
+
 def emit_prolog(program):
     """Добавляет в программу необходимое начало"""
     program.append(program_prolog)
+
 
 def emit_epilog(program):
     """Добавляет в программу необходимое завершение"""
     program.append(program_epilog)
 
+
 def emit_result(program, number):
     """Добавляет в программу запись числа в регистр rdi для последующего возврата"""
     program.append(f"    mov rdi, {number}\n") # Кладём в регистр rdi наше число - это будет код возврата
+
 
 def main(args):
     # Проверка количества аргументов командной строки:
@@ -104,5 +109,6 @@ def main(args):
     write_program(program, output_path)
 
 
+# Если компилятор запущен, вызываем main
 if __name__ == '__main__':
     main(sys.argv)
