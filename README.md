@@ -33,7 +33,7 @@ sudo apt update && sudo apt install python3 gcc nasm make git -y
 git clone https://github.com/the-lenoz/compiler_lessons.git
 ```
 ### 7. Смотреть инструкцию запуска каждого урока
-(lessonXX/README.md)
+`lessonXX/README.md`
 
 ###
 
@@ -52,4 +52,4 @@ sudo apt update && sudo apt install python3 gcc nasm make git -y
 git clone https://github.com/the-lenoz/compiler_lessons.git
 ```
 ### 3. Смотреть инструкцию запуска каждого урока
-(lessonXX/README.md)
+`lessonXX/README.md`
