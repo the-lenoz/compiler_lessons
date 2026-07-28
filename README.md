@@ -1,6 +1,6 @@
 # Пошаговый курс "компилятор с нуля"
 
-Здесь лежит исходный код курса. Сам курс [на YouTube](http://localhost)
+Здесь лежит исходный код курса. Сам курс [на YouTube](https://youtube.com/playlist?list=PLcBfaByu9Do8)
 
 ## Начать работу:
 - На [Windows](#установка-на-windows)
