@@ -119,14 +119,14 @@ def parse_sum(source):
     # Если числа нет, то суммы - тем более. Выходим
     if left_number is None:
         cursor = old_cursor
-        return None
+        return parse_int(source)
 
     skip_spaces(source)
 
     # Если дальше нет "+", это не сложение. Выходим
     if cursor >= len(source) or source[cursor] != "+":
         cursor = old_cursor
-        return None
+        return parse_int(source)
 
     # Пропускаем "+"
     cursor += 1
@@ -137,7 +137,7 @@ def parse_sum(source):
     # Если справа от "+" ничего нет - это не сложение. Выходим
     if right_arg is None:
         cursor = old_cursor
-        return None
+        return parse_int(source)
 
     # Возвращаем кортеж из слагаемых
     return left_number, right_arg
@@ -151,7 +151,7 @@ def parse_program(source):
     cursor = 0
 
     # Наша программа - это сумма, либо просто число
-    result = parse_sum(source) or parse_int(source)
+    result = parse_sum(source)
 
     if cursor != len(source):
         print(f"Error: unexpected program continuation \"{source[cursor:]}\"")
