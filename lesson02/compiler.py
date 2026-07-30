@@ -151,7 +151,13 @@ def parse_program(source):
     cursor = 0
 
     # Наша программа - это сумма, либо просто число
-    return parse_sum(source) or parse_int(source)
+    result = parse_sum(source) or parse_int(source)
+
+    if cursor != len(source):
+        print(f"Error: unexpected program continuation \"{source[cursor:]}\"")
+        return None
+
+    return result
 
 
 def main(args):
