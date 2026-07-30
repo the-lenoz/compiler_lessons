@@ -160,6 +160,22 @@ def parse_program(source):
     return result
 
 
+def process_sum(program, acc_reg_name, expr: tuple | int):
+    """Обрабатывает выражение суммы и генерирует ассемблер"""
+
+    # Если передано число - записываем его в аккумулятор: это промежуточный результат
+    if isinstance(expr, int):
+        emit_reg_assign(program, acc_reg_name, expr)
+        return
+
+    # Если передано дерево, обработаем правую часть суммы
+    process_sum(program, acc_reg_name, expr[1])
+
+    # И прибавим к ней число слева
+    emit_reg_add(program, acc_reg_name, expr[0])
+
+
+
 def main(args):
     # Проверка количества аргументов командной строки:
     # если не совпадает (должно быть 3, т. к. первый - имя самой прогрммы-компилятора), печатаем инструкцию и выходим
@@ -192,22 +208,8 @@ def main(args):
     # Добавляем в программу необходимые начальные строки
     emit_prolog(program)
 
-    # Кладём в регистр rax 0, там будем считать сумму,
-    emit_reg_assign(program, "rax", 0)
-
-    # Разбираем выражение по частям - отбираем левую часть, пока не останется число
-    addition = expression
-    while isinstance(addition, tuple):
-        # Вставляем прибавление числа слева
-        emit_reg_add(program, "rax", addition[0])
-
-        # Оставшееся выражение - правая часть старого, так как левую мы обработали
-        addition = addition[1]
-
-    # Добавляем последнее число
-    emit_reg_add(program, "rax", addition)
-
-    # Теперь итоговая сумма в rax
+    # Обрабатываем суммирование. Результат сохраняем в rax
+    process_sum(program, "rax", expression)
 
     # Кладём эту сумму из rax в итоговый регистр rdi
     emit_result(program, "rax")
