@@ -1,0 +1,26 @@
+
+
+expr = sum | sub | term
+
+sum = term '+' expr
+sub = term '-' expr
+
+term = mul | div | atom
+
+mul = atom '*' term
+div = atom '/' term
+
+atom = paren_expr | number
+
+paren_expr = '(' expr ')'
+
+
+# Дальше решит конструктор класса int, но можно и правилами:
+
+number = positive | '-' positive
+
+positive = positive_int '.' positive_int | positive_int
+
+positive_int = digit positive_int | digit
+
+digit = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9'

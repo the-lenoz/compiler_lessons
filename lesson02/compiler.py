@@ -16,7 +16,7 @@ program_epilog = """\
 
 def print_usage():
     """Печатает инструкцию по использованию программы в stderr"""
-    print("The simplest compiler: compiles just one integer number (0-255).\n"
+    print("Sum compiler: compiles infix-written sum expressions.\n"
           f"Usage: {sys.argv[0]} input_file output_file", file=sys.stderr)
 
 
@@ -131,8 +131,8 @@ def parse_sum(source):
     # Пропускаем "+"
     cursor += 1
 
-    # Парсим правую часть: число, либо ещё одна сумма
-    right_arg = parse_sum(source) or parse_int(source)
+    # Парсим правую часть: ещё одна сумма
+    right_arg = parse_sum(source)
 
     # Если справа от "+" ничего нет - это не сложение. Выходим
     if right_arg is None:
@@ -150,7 +150,7 @@ def parse_program(source):
     global cursor
     cursor = 0
 
-    # Наша программа - это сумма, либо просто число
+    # Наша программа - это сумма
     result = parse_sum(source)
 
     if cursor != len(source):
