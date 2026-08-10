@@ -1,0 +1,29 @@
+program = block
+
+block = stmt block | stmt
+
+stmt = assignment | return
+
+assignment = id '=' expr ';'
+
+return = 'return' expr ';'
+
+expr = sum | sub | term
+
+sum = term '+' expr
+sub = term '-' expr
+
+term = mul | div | atom
+
+mul = atom '*' term
+div = atom '/' term
+
+atom = paren_expr | number | id
+
+paren_expr = '(' expr ')'
+
+### id и number парсим просто циклом
+number = -?[0-9]+
+id = [A-Za-z_][A-Za-z_0-9]*
+
+
