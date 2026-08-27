@@ -24,12 +24,15 @@ class CodeGenerator:
         self.terminated = False
 
     def _emit(self, string: str):
+        """Добавляет строку assembler-кода в программу"""
         self.program_body.append(string)
 
     def emit_push(self, reg: str):
+        """Добавляет в программу команду push - сохранение регистра в стек"""
         self._emit(f"    push {reg}\n")
 
     def emit_pop(self, reg: str):
+        """Добавляет в программу команду pop - извлечение значения из стека в регистр"""
         self._emit(f"    pop {reg}\n")
 
 
@@ -43,26 +46,28 @@ class CodeGenerator:
         self.set_terminated()
 
     def emit_add(self):
-        """Adds RBX to RAX"""
+        """Складывает rbx и rax, результат в rax"""
         self._emit("    add rax, rbx\n")
 
     def emit_sub(self):
-        """Adds RBX to RAX"""
+        """Вычитает rbx из rax, результат в rax"""
         self._emit("    sub rax, rbx\n")
 
     def emit_mul(self):
-        """Adds RBX to RAX"""
+        """Умножает rax на rbx, результат в rax"""
         self._emit("    imul rax, rbx\n")
 
     def emit_div(self):
-        """Adds RBX to RAX"""
+        """Делит rax на rbx, результат в rax"""
         self._emit("    cqo\n")
         self._emit("    idiv rbx\n")
 
     def get_locals_bp_offset(self):
+        """Возвращает смещение для выделения памяти под локальные переменные"""
         return len(self.locals) * 8
 
     def add_var(self, var_name: str):
+        """Добавляет новую локальную переменную и возвращает её смещение от rbp"""
         if var_name in self.locals:
             print(f"Error: var '{var_name}' already exists", file=sys.stderr)
             return False
@@ -71,6 +76,7 @@ class CodeGenerator:
         return bp_offset
 
     def get_var_addr(self, var_name: str):
+        """Возвращает адрес переменной в стеке (относительно rbp)"""
         if var_name not in self.locals:
             print(f"Error: var '{var_name}' undefined", file=sys.stderr)
             return None
@@ -78,12 +84,14 @@ class CodeGenerator:
         return f'rbp-{self.locals[var_name]}'
 
     def emit_store_val_to_var(self, var_name: str):
+        """Сохраняет значение из rax в переменную"""
         if var_name not in self.locals:
             self.add_var(var_name)
 
         self._emit(f"    mov [{self.get_var_addr(var_name)}], rax\n")
 
     def emit_load_val_from_var(self, var_name: str):
+        """Загружает значение переменной из памяти в rax"""
         if var_name not in self.locals:
             print(f"Error: var '{var_name}' undefined", file=sys.stderr)
             return
@@ -91,6 +99,7 @@ class CodeGenerator:
         self._emit(f"    mov rax, [{self.get_var_addr(var_name)}]\n")
 
     def generate_entry(self):
+        """Генерирует пролог функции - сохранение rbp и выделение места в стеке"""
         bp_offset = self.get_locals_bp_offset()
         if bp_offset == 0:
             return []
@@ -101,6 +110,7 @@ class CodeGenerator:
         ]
 
     def generate_leave(self):
+        """Генерирует эпилог функции - восстановление стека"""
         return [
             "    mov rsp, rbp\n"
         ]
@@ -123,10 +133,13 @@ class CodeGenerator:
             file.write("".join(program))
 
     def set_terminated(self):
+        """Помечает, что генерация кода завершена (встретился return)"""
         self.terminated = True
 
     def unset_terminated(self):
+        """Снимает пометку завершения генерации"""
         self.terminated = False
 
     def get_terminated(self):
+        """Возвращает True, если генерация кода завершена"""
         return self.terminated

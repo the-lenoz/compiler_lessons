@@ -27,6 +27,7 @@ def read_file(path):
 
 
 def process_expr(expr: Expr | None, program: CodeGenerator):
+    """Обходит AST выражения и генерирует assembler-код для вычисления его значения в rax"""
     if expr is None:
         return
 
@@ -68,6 +69,7 @@ def process_expr(expr: Expr | None, program: CodeGenerator):
 
 
 def process_stmt(statement: Stmt, program: CodeGenerator):
+    """Обходит AST инструкции и генерирует assembler-код для неё"""
     match statement:
         case If(cond, body):
             process_expr(cond, program)
@@ -91,6 +93,7 @@ def process_stmt(statement: Stmt, program: CodeGenerator):
             program.emit_return("rax")
 
 def process_block(block: Block | None, program: CodeGenerator):
+    """Обходит AST блока (списка инструкций) и генерирует assembler-код для каждой инструкции"""
     if block is None or program.get_terminated():
         return
 

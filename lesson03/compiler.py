@@ -27,6 +27,7 @@ def read_file(path):
 
 
 def process_expr(expr: Expr | None, program: CodeGenerator):
+    """Обходит AST выражения и генерирует assembler-код для вычисления его значения в rax"""
     if expr is None:
         return
 

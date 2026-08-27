@@ -229,6 +229,8 @@ class Parser:
 
 
     def _match(self, expected: str):
+        """Проверяет, что дальше в источнике идёт ожидаемая строка, и сдвигает курсор"""
+
         old_cursor = self.cursor
         self._skip_spaces()
         if not self.source[self.cursor:].startswith(expected):

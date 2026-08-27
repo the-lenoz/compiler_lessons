@@ -2,7 +2,7 @@ program = block
 
 block = stmt block | stmt
 
-stmt = assignment | return
+stmt = if | while | assignment | return
 
 if = 'if' paren_expr '{' block '}'
 while = 'while' paren_expr '{' block '}'

@@ -19,12 +19,15 @@ class CodeGenerator:
         self.program = []
 
     def _emit(self, string: str):
+        """Добавляет строку assembler-кода в программу"""
         self.program.append(string)
 
     def emit_push(self, reg: str):
+        """Добавляет в программу команду push - сохранение регистра в стек"""
         self._emit(f"    push {reg}\n")
 
     def emit_pop(self, reg: str):
+        """Добавляет в программу команду pop - извлечение значения из стека в регистр"""
         self._emit(f"    pop {reg}\n")
 
     def emit_prolog(self):
@@ -44,19 +47,19 @@ class CodeGenerator:
         self.emit_reg_assign("rdi", result_expr)
 
     def emit_add(self):
-        """Adds RBX to RAX"""
+        """Складывает rbx и rax, результат в rax"""
         self._emit("    add rax, rbx\n")
 
     def emit_sub(self):
-        """Adds RBX to RAX"""
+        """Вычитает rbx из rax, результат в rax"""
         self._emit("    sub rax, rbx\n")
 
     def emit_mul(self):
-        """Adds RBX to RAX"""
+        """Умножает rax на rbx, результат в rax"""
         self._emit("    imul rax, rbx\n")
 
     def emit_div(self):
-        """Adds RBX to RAX"""
+        """Делит rax на rbx, результат в rax"""
         self._emit("    cqo\n")
         self._emit("    idiv rbx\n")
 

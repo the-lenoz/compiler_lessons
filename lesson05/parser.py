@@ -145,7 +145,7 @@ class Parser:
         return program
 
     @staticmethod
-    def _fix_order(expr: Expr | None) -> Expr | None:
+    def _fix_order(expr: Arith | None) -> Arith | None:
         if expr is None:
             return None
 
@@ -474,6 +474,7 @@ class Parser:
         return Number(int(value))
 
     def _match(self, expected: str):
+        """Проверяет, что дальше в источнике идёт ожидаемая строка, и сдвигает курсор"""
         old_cursor = self.cursor
         self._skip_spaces()
         if not self.source[self.cursor:].startswith(expected):
