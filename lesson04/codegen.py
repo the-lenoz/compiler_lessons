@@ -19,6 +19,7 @@ class CodeGenerator:
     terminated: bool
 
     def __init__(self):
+        """Создаёт генератор с пустым телом программы и таблицей переменных"""
         self.program_body = []
         self.locals = {}
         self.terminated = False

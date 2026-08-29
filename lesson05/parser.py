@@ -37,6 +37,7 @@ class Assignment(Stmt):
 @dataclass
 class Expr:
     def evaluate(self):
+        """Вычисляет значение выражения"""
         pass
 
 @dataclass
@@ -82,12 +83,14 @@ class Number(Atom):
     value: int
 
     def evaluate(self):
+        """Возвращает значение числового литерала"""
         return self.value
 
 
 @dataclass
 class Sum(Expr, BinOP):
     def evaluate(self):
+        """Вычисляет сумму дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() + self.r_child.evaluate()
         return None
@@ -96,6 +99,7 @@ class Sum(Expr, BinOP):
 @dataclass
 class Sub(Expr, BinOP):
     def evaluate(self):
+        """Вычисляет разность дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() - self.r_child.evaluate()
         return None
@@ -104,6 +108,7 @@ class Sub(Expr, BinOP):
 @dataclass
 class Mul(Term, BinOP):
     def evaluate(self):
+        """Вычисляет произведение дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() * self.r_child.evaluate()
         return None
@@ -112,6 +117,7 @@ class Mul(Term, BinOP):
 @dataclass
 class Div(Term, BinOP):
     def evaluate(self):
+        """Вычисляет целочисленное частное дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() // self.r_child.evaluate()
         return None
@@ -122,6 +128,7 @@ class ParenExpr(Atom):
     expr: Expr | None
 
     def evaluate(self):
+        """Вычисляет выражение внутри скобок"""
         return self.expr.evaluate()
 
 
@@ -135,10 +142,12 @@ class Parser:
     cursor: int
 
     def __init__(self, source: str):
+        """Создаёт парсер для переданного исходного текста"""
         self.source = source
         self.cursor = 0
 
     def parse(self):
+        """Разбирает исходный текст и возвращает AST программы"""
         program = self._parse_program()
         if self.cursor < len(self.source):
             print(f"Warn: unexpected continuation ignored: '{self.source[self.cursor:]}'", file=sys.stderr)
@@ -146,6 +155,7 @@ class Parser:
 
     @staticmethod
     def _fix_order(expr: Arith | None) -> Arith | None:
+        """Исправляет дерево с учётом порядка выполнения одноуровневых операций"""
         if expr is None:
             return None
 
@@ -169,9 +179,11 @@ class Parser:
         return expr
 
     def _parse_program(self):
+        """Считывает программу как блок инструкций"""
         return self._parse_block()
 
     def _parse_block(self):
+        """Считывает последовательность инструкций"""
         old_cursor = self.cursor
 
         first = self._parse_stmt()
@@ -184,9 +196,11 @@ class Parser:
         return Block(first, next_block)
 
     def _parse_stmt(self):
+        """Считывает одну инструкцию"""
         return self._parse_if() or self._parse_while() or self._parse_return() or self._parse_assignment()
 
     def _parse_if(self):
+        """Считывает условную инструкцию if"""
         old_cursor = self.cursor
 
         if not self._match("if"):
@@ -207,6 +221,7 @@ class Parser:
         return If(cond.expr, body)
 
     def _parse_while(self):
+        """Считывает цикл while"""
         old_cursor = self.cursor
 
         if not self._match("while"):
@@ -227,6 +242,7 @@ class Parser:
         return While(cond.expr, body)
 
     def _parse_return(self):
+        """Считывает инструкцию return"""
         old_cursor = self.cursor
 
         if not self._match("return"):
@@ -242,6 +258,7 @@ class Parser:
         return Return(expr)
 
     def _parse_assignment(self):
+        """Считывает присваивание значения переменной"""
         old_cursor = self.cursor
 
         identifier = self._parse_id()
@@ -257,10 +274,12 @@ class Parser:
         return Assignment(identifier, expr)
 
     def _parse_expr(self):
+        """Считывает выражение сравнения или арифметическое выражение"""
         return (self._parse_eq() or self._parse_lt() or self._parse_gt() or
                 self._parse_lte() or self._parse_gte() or self._parse_arith())
 
     def _parse_eq(self):
+        """Считывает выражение сравнения на равенство"""
         old_cursor = self.cursor
 
         l_child = self._parse_arith()
@@ -276,6 +295,7 @@ class Parser:
         return Eq(l_child, r_child)
 
     def _parse_lt(self):
+        """Считывает выражение сравнения «меньше»"""
         old_cursor = self.cursor
 
         l_child = self._parse_arith()
@@ -291,6 +311,7 @@ class Parser:
         return Lt(l_child, r_child)
 
     def _parse_gt(self):
+        """Считывает выражение сравнения «больше»"""
         old_cursor = self.cursor
 
         l_child = self._parse_arith()
@@ -306,6 +327,7 @@ class Parser:
         return Gt(l_child, r_child)
 
     def _parse_lte(self):
+        """Считывает выражение сравнения «меньше или равно»"""
         old_cursor = self.cursor
 
         l_child = self._parse_arith()
@@ -321,6 +343,7 @@ class Parser:
         return Lte(l_child, r_child)
 
     def _parse_gte(self):
+        """Считывает выражение сравнения «больше или равно»"""
         old_cursor = self.cursor
 
         l_child = self._parse_arith()
@@ -336,10 +359,12 @@ class Parser:
         return Gte(l_child, r_child)
 
     def _parse_arith(self):
+        """Считывает арифметическое выражение"""
         arith = self._parse_sum() or self._parse_sub() or self._parse_term()
         return Parser._fix_order(arith)
 
     def _parse_sum(self):
+        """Считывает выражение сложения"""
         old_cursor = self.cursor
 
         l_child = self._parse_term()
@@ -355,6 +380,7 @@ class Parser:
         return Sum(l_child, r_child)
 
     def _parse_sub(self):
+        """Считывает выражение вычитания"""
         old_cursor = self.cursor
 
         l_child = self._parse_term()
@@ -370,9 +396,11 @@ class Parser:
         return Sub(l_child, r_child)
 
     def _parse_term(self):
+        """Считывает терм: умножение, деление или атом"""
         return self._parse_mul() or self._parse_div() or self._parse_atom()
 
     def _parse_mul(self):
+        """Считывает выражение умножения"""
         old_cursor = self.cursor
 
         l_child = self._parse_atom()
@@ -388,6 +416,7 @@ class Parser:
         return Mul(l_child, r_child)
 
     def _parse_div(self):
+        """Считывает выражение деления"""
         old_cursor = self.cursor
 
         l_child = self._parse_atom()
@@ -403,9 +432,11 @@ class Parser:
         return Div(l_child, r_child)
 
     def _parse_atom(self):
+        """Считывает атомарное выражение: скобки, число или имя переменной"""
         return self._parse_paren_expr() or self._parse_number() or self._parse_id()
 
     def _parse_paren_expr(self):
+        """Считывает выражение в круглых скобках"""
         old_cursor = self.cursor
 
         if not self._match("("):
@@ -490,6 +521,5 @@ class Parser:
         # Пока текущий символ - пробел, и мы не дошли до конца - двигаем курсор дальше
         while self.cursor < len(self.source) and self.source[self.cursor].isspace():
             self.cursor += 1
-
 
 

@@ -5,6 +5,36 @@ from dataclasses import dataclass
 
 
 @dataclass
+class BinOP:
+    l_child: Expr | None
+    r_child: Expr | None
+
+
+@dataclass
+class FuncBlock:
+    first_f: FuncDecl
+    next_block: FuncBlock | None
+
+@dataclass
+class FuncDecl:
+    pass
+
+@dataclass
+class FDef(FuncDecl):
+    decl: FDecl
+    body: Block
+
+@dataclass
+class FDecl(FuncDecl):
+    name: Id
+    args: DeclArgs | None
+
+@dataclass
+class DeclArgs:
+    first_arg: Id
+    next_args: DeclArgs | None
+
+@dataclass
 class Block:
     first_statement: Stmt
     next_block: Block | None
@@ -13,6 +43,15 @@ class Block:
 class Stmt:
     pass
 
+@dataclass
+class If(Stmt):
+    condition: Expr
+    body: Block
+
+@dataclass
+class While(Stmt):
+    condition: Expr
+    body: Block
 
 @dataclass
 class Assignment(Stmt):
@@ -20,16 +59,38 @@ class Assignment(Stmt):
     expr: Expr
 
 @dataclass
-class Return(Stmt):
-    expr: Expr
-
-
-@dataclass
 class Expr:
     def evaluate(self):
         """Вычисляет значение выражения"""
         pass
 
+@dataclass
+class Return(Stmt):
+    expr: Expr
+
+@dataclass
+class Eq(Expr, BinOP):
+    pass
+
+@dataclass
+class Lt(Expr, BinOP):
+    pass
+
+@dataclass
+class Gt(Expr, BinOP):
+    pass
+
+@dataclass
+class Lte(Expr, BinOP):
+    pass
+
+@dataclass
+class Gte(Expr, BinOP):
+    pass
+
+@dataclass
+class Arith(Expr):
+    pass
 
 @dataclass
 class Term(Expr):
@@ -40,6 +101,16 @@ class Term(Expr):
 class Atom(Term):
     pass
 
+@dataclass
+class Call(Atom):
+    name: Id
+    args: CallArgs | None
+
+@dataclass
+class CallArgs:
+    first_arg: Expr
+    next_args: CallArgs | None
+
 
 @dataclass
 class Number(Atom):
@@ -48,12 +119,6 @@ class Number(Atom):
     def evaluate(self):
         """Возвращает значение числового литерала"""
         return self.value
-
-
-@dataclass
-class BinOP:
-    l_child: Expr | None
-    r_child: Expr | None
 
 
 @dataclass
@@ -123,7 +188,7 @@ class Parser:
         return program
 
     @staticmethod
-    def _fix_order(expr: Expr | None) -> Expr | None:
+    def _fix_order(expr: Arith | None) -> Arith | None:
         """Исправляет дерево с учётом порядка выполнения одноуровневых операций"""
         if expr is None:
             return None
@@ -148,8 +213,92 @@ class Parser:
         return expr
 
     def _parse_program(self):
-        """Считывает программу как блок инструкций"""
-        return self._parse_block()
+        """Считывает программу как блок объявлений и определений функций"""
+        return self._parse_func_block()
+
+    def _parse_func_block(self):
+        """Считывает последовательность объявлений и определений функций"""
+        old_cursor = self.cursor
+
+        first = self._parse_func_decl()
+        if not first:
+            self.cursor = old_cursor
+            return None
+
+        next_block = self._parse_func_block()
+
+        return FuncBlock(first, next_block)
+
+    def _parse_func_decl(self) -> FuncDecl | None:
+        """Считывает объявление или определение функции"""
+        old_cursor = self.cursor
+
+        definition = self._parse_f_def()
+        if definition:
+            return definition
+
+        decl = self._parse_f_decl()
+        if not decl or not self._match(";"):
+            self.cursor = old_cursor
+            return None
+
+        return decl
+
+    def _parse_f_def(self):
+        """Считывает определение функции с телом"""
+        old_cursor = self.cursor
+
+        decl = self._parse_f_decl()
+        if not decl or not self._match("{"):
+            self.cursor = old_cursor
+            return None
+
+        body = self._parse_block()
+
+        if not body or not self._match("}"):
+            self.cursor = old_cursor
+            return None
+
+        return FDef(decl, body)
+
+    def _parse_f_decl(self):
+        """Считывает заголовок функции"""
+        old_cursor = self.cursor
+
+        if not self._match("fn"):
+            self.cursor = old_cursor
+            return None
+
+        name = self._parse_id()
+        if not name or not self._match("("):
+            self.cursor = old_cursor
+            return None
+
+        args = self._parse_decl_args()
+
+        if not self._match(")"):
+            self.cursor = old_cursor
+            return None
+
+        return FDecl(name, args)
+
+    def _parse_decl_args(self):
+        """Считывает список имён аргументов функции"""
+        old_cursor = self.cursor
+
+        first_arg = self._parse_id()
+        if not first_arg:
+            self.cursor = old_cursor
+            return None
+
+        next_args = None
+        if self._match(","):
+            next_args = self._parse_decl_args()
+            if not next_args:
+                self.cursor = old_cursor
+                return None
+
+        return DeclArgs(first_arg, next_args)
 
     def _parse_block(self):
         """Считывает последовательность инструкций"""
@@ -166,7 +315,49 @@ class Parser:
 
     def _parse_stmt(self):
         """Считывает одну инструкцию"""
-        return self._parse_return() or self._parse_assignment()
+        return self._parse_if() or self._parse_while() or self._parse_return() or self._parse_assignment()
+
+    def _parse_if(self):
+        """Считывает условную инструкцию if"""
+        old_cursor = self.cursor
+
+        if not self._match("if"):
+            self.cursor = old_cursor
+            return None
+
+        cond = self._parse_paren_expr()
+        if not cond or not cond.expr or not self._match("{"):
+            self.cursor = old_cursor
+            return None
+
+        body = self._parse_block()
+
+        if not body or not self._match("}"):
+            self.cursor = old_cursor
+            return None
+
+        return If(cond.expr, body)
+
+    def _parse_while(self):
+        """Считывает цикл while"""
+        old_cursor = self.cursor
+
+        if not self._match("while"):
+            self.cursor = old_cursor
+            return None
+
+        cond = self._parse_paren_expr()
+        if not cond or not cond.expr or not self._match("{"):
+            self.cursor = old_cursor
+            return None
+
+        body = self._parse_block()
+
+        if not body or not self._match("}"):
+            self.cursor = old_cursor
+            return None
+
+        return While(cond.expr, body)
 
     def _parse_return(self):
         """Считывает инструкцию return"""
@@ -201,9 +392,94 @@ class Parser:
         return Assignment(identifier, expr)
 
     def _parse_expr(self):
+        """Считывает выражение сравнения или арифметическое выражение"""
+        return (self._parse_eq() or self._parse_lt() or self._parse_gt() or
+                self._parse_lte() or self._parse_gte() or self._parse_arith())
+
+    def _parse_eq(self):
+        """Считывает выражение сравнения на равенство"""
+        old_cursor = self.cursor
+
+        l_child = self._parse_arith()
+        if not l_child or not self._match("=="):
+            self.cursor = old_cursor
+            return None
+
+        r_child = self._parse_expr()
+        if not r_child:
+            self.cursor = old_cursor
+            return None
+
+        return Eq(l_child, r_child)
+
+    def _parse_lt(self):
+        """Считывает выражение сравнения «меньше»"""
+        old_cursor = self.cursor
+
+        l_child = self._parse_arith()
+        if not l_child or not self._match("<"):
+            self.cursor = old_cursor
+            return None
+
+        r_child = self._parse_expr()
+        if not r_child:
+            self.cursor = old_cursor
+            return None
+
+        return Lt(l_child, r_child)
+
+    def _parse_gt(self):
+        """Считывает выражение сравнения «больше»"""
+        old_cursor = self.cursor
+
+        l_child = self._parse_arith()
+        if not l_child or not self._match(">"):
+            self.cursor = old_cursor
+            return None
+
+        r_child = self._parse_expr()
+        if not r_child:
+            self.cursor = old_cursor
+            return None
+
+        return Gt(l_child, r_child)
+
+    def _parse_lte(self):
+        """Считывает выражение сравнения «меньше или равно»"""
+        old_cursor = self.cursor
+
+        l_child = self._parse_arith()
+        if not l_child or not self._match("<="):
+            self.cursor = old_cursor
+            return None
+
+        r_child = self._parse_expr()
+        if not r_child:
+            self.cursor = old_cursor
+            return None
+
+        return Lte(l_child, r_child)
+
+    def _parse_gte(self):
+        """Считывает выражение сравнения «больше или равно»"""
+        old_cursor = self.cursor
+
+        l_child = self._parse_arith()
+        if not l_child or not self._match(">="):
+            self.cursor = old_cursor
+            return None
+
+        r_child = self._parse_expr()
+        if not r_child:
+            self.cursor = old_cursor
+            return None
+
+        return Gte(l_child, r_child)
+
+    def _parse_arith(self):
         """Считывает арифметическое выражение"""
-        expr = self._parse_sum() or self._parse_sub() or self._parse_term()
-        return Parser._fix_order(expr)
+        arith = self._parse_sum() or self._parse_sub() or self._parse_term()
+        return Parser._fix_order(arith)
 
     def _parse_sum(self):
         """Считывает выражение сложения"""
@@ -214,7 +490,7 @@ class Parser:
             self.cursor = old_cursor
             return None
 
-        r_child = self._parse_expr()
+        r_child = self._parse_arith()
         if not r_child:
             self.cursor = old_cursor
             return None
@@ -230,7 +506,7 @@ class Parser:
             self.cursor = old_cursor
             return None
 
-        r_child = self._parse_expr()
+        r_child = self._parse_arith()
         if not r_child:
             self.cursor = old_cursor
             return None
@@ -274,8 +550,8 @@ class Parser:
         return Div(l_child, r_child)
 
     def _parse_atom(self):
-        """Считывает атомарное выражение: скобки, число или имя переменной"""
-        return self._parse_paren_expr() or self._parse_number() or self._parse_id()
+        """Считывает атомарное выражение: скобки, вызов, число или имя переменной"""
+        return self._parse_paren_expr() or self._parse_call() or self._parse_number() or self._parse_id()
 
     def _parse_paren_expr(self):
         """Считывает выражение в круглых скобках"""
@@ -292,6 +568,40 @@ class Parser:
             return None
 
         return ParenExpr(child_expr)
+
+    def _parse_call(self):
+        """Считывает вызов функции"""
+        old_cursor = self.cursor
+
+        callee_name = self._parse_id()
+        if not callee_name or not self._match("("):
+            self.cursor = old_cursor
+            return None
+
+        args = self._parse_call_args()
+        if not self._match(")"):
+            self.cursor = old_cursor
+            return None
+
+        return Call(callee_name, args)
+
+    def _parse_call_args(self):
+        """Считывает список выражений-аргументов вызова функции"""
+        old_cursor = self.cursor
+
+        first_arg = self._parse_expr()
+        if not first_arg:
+            self.cursor = old_cursor
+            return None
+
+        next_args = None
+        if self._match(","):
+            next_args = self._parse_call_args()
+            if not next_args:
+                self.cursor = old_cursor
+                return None
+
+        return CallArgs(first_arg, next_args)
 
     def _parse_id(self):
         """Считывает идентификатор, игнорируя пробелы, и сдвигает курсор"""

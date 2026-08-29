@@ -16,6 +16,7 @@ class CodeGenerator:
     program: list
 
     def __init__(self):
+        """Создаёт генератор с пустым списком assembler-инструкций"""
         self.program = []
 
     def _emit(self, string: str):

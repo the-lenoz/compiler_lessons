@@ -4,6 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class Expr:
     def evaluate(self):
+        """Вычисляет значение выражения"""
         pass
 
 
@@ -21,6 +22,7 @@ class Atom(Term):
 class Number(Atom):
     value: int
     def evaluate(self):
+        """Возвращает значение числового литерала"""
         return self.value
 
 
@@ -33,6 +35,7 @@ class BinOP:
 @dataclass
 class Sum(Expr, BinOP):
     def evaluate(self):
+        """Вычисляет сумму дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() + self.r_child.evaluate()
         return None
@@ -41,6 +44,7 @@ class Sum(Expr, BinOP):
 @dataclass
 class Sub(Expr, BinOP):
     def evaluate(self):
+        """Вычисляет разность дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() - self.r_child.evaluate()
         return None
@@ -49,6 +53,7 @@ class Sub(Expr, BinOP):
 @dataclass
 class Mul(Term, BinOP):
     def evaluate(self):
+        """Вычисляет произведение дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() * self.r_child.evaluate()
         return None
@@ -57,6 +62,7 @@ class Mul(Term, BinOP):
 @dataclass
 class Div(Term, BinOP):
     def evaluate(self):
+        """Вычисляет целочисленное частное дочерних выражений"""
         if self.r_child is not None and self.l_child is not None:
             return self.l_child.evaluate() // self.r_child.evaluate()
         return None
@@ -66,6 +72,7 @@ class Div(Term, BinOP):
 class ParenExpr(Atom):
     expr: Expr | None
     def evaluate(self):
+        """Вычисляет выражение внутри скобок"""
         return self.expr.evaluate()
 
 
@@ -74,10 +81,12 @@ class Parser:
     cursor: int
 
     def __init__(self, source: str):
+        """Создаёт парсер для переданного исходного текста"""
         self.source = source
         self.cursor = 0
 
     def parse(self):
+        """Разбирает исходный текст и возвращает AST выражения"""
         expr = self._parse_expr()
         if self.cursor < len(self.source):
             print(f"Warn: unexpected continuation ignored: '{self.source[self.cursor:]}'", file=sys.stderr)
@@ -85,6 +94,7 @@ class Parser:
 
     @staticmethod
     def _fix_order(expr: Expr | None) -> Expr | None:
+        """Исправляет дерево с учётом порядка выполнения одноуровневых операций"""
         if expr is None:
             return None
 
@@ -116,9 +126,11 @@ class Parser:
             self.cursor += 1
 
     def _parse_expr(self):
+        """Считывает арифметическое выражение"""
         return self._parse_sum() or self._parse_sub() or self._parse_term()
 
     def _parse_sum(self):
+        """Считывает выражение сложения"""
         old_cursor = self.cursor
 
         l_child = self._parse_term()
@@ -134,6 +146,7 @@ class Parser:
         return Sum(l_child, r_child)
 
     def _parse_sub(self):
+        """Считывает выражение вычитания"""
         old_cursor = self.cursor
 
         l_child = self._parse_term()
@@ -149,9 +162,11 @@ class Parser:
         return Sub(l_child, r_child)
 
     def _parse_term(self):
+        """Считывает терм: умножение, деление или атом"""
         return self._parse_mul() or self._parse_div() or self._parse_atom()
 
     def _parse_mul(self):
+        """Считывает выражение умножения"""
         old_cursor = self.cursor
 
         l_child = self._parse_atom()
@@ -167,6 +182,7 @@ class Parser:
         return Mul(l_child, r_child)
 
     def _parse_div(self):
+        """Считывает выражение деления"""
         old_cursor = self.cursor
 
         l_child = self._parse_atom()
@@ -182,9 +198,11 @@ class Parser:
         return Div(l_child, r_child)
 
     def _parse_atom(self):
+        """Считывает атомарное выражение: скобки или число"""
         return self._parse_paren_expr() or self._parse_number()
 
     def _parse_paren_expr(self):
+        """Считывает выражение в круглых скобках"""
         old_cursor = self.cursor
 
         if not self._match("("):
@@ -239,5 +257,4 @@ class Parser:
 
         self.cursor += len(expected)
         return True
-
 

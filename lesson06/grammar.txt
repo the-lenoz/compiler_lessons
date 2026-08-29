@@ -1,0 +1,50 @@
+program = func_block
+
+func_block = func_decl func_block | func_decl
+func_decl = f_decl ';' | f_def
+f_def = f_decl '{' block '}'
+
+f_decl = 'fn' id '(' decl_args ')'
+decl_args = id ',' decl_args | id | ''
+
+block = stmt block | stmt
+
+stmt = if | while | assignment | return
+
+if = 'if' paren_expr '{' block '}'
+while = 'while' paren_expr '{' block '}'
+
+assignment = id '=' logical ';'
+
+return = 'return' logical ';'
+
+expr = eq | lt | gt | lte | gte | arith
+
+eq = arith '==' expr
+lt = arith '<' expr
+gt = arith '>' expr
+lte = arith '<=' expr
+gte = arith '>=' expr
+
+arith = sum | sub | term
+
+sum = term '+' arith
+sub = term '-' arith
+
+term = mul | div | atom
+
+mul = atom '*' term
+div = atom '/' term
+
+atom = paren_expr | call | number | id
+
+paren_expr = '(' expr ')'
+
+call = id '(' call_args ')'
+call_args = expr ',' call_args | expr | ''
+
+### id и number парсим просто циклом
+number = -?[0-9]+
+id = [A-Za-z_][A-Za-z_0-9]*
+
+
