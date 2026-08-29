@@ -13,5 +13,5 @@ fn fib_naive(N)
 
 fn main()
 {
-  return fib_naive(7);
+  return fib_naive(14);
 }
