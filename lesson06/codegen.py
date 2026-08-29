@@ -5,6 +5,16 @@ program_prolog = """
 section .text                       ; указываем, что дальше идёт код. ".text" - имя секции кода по стандарту
     global _start                   ; делаем метку _start видимой для сборщика исполняемого файла
 
+putchar:
+    push rdi
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, rsp
+    mov rdx, 1
+    syscall
+    pop rax
+    ret
+
 _start:                             ; сама метка точки входа
     sub rsp, 8                      ; выравниваем стек
     call main                       ; вызываем основную функцию программы
