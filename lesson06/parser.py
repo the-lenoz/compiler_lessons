@@ -59,7 +59,7 @@ class Assignment(Stmt):
     expr: Expr
 
 @dataclass
-class Expr:
+class Expr(Stmt):
     def evaluate(self):
         """Вычисляет значение выражения"""
         pass
@@ -315,7 +315,8 @@ class Parser:
 
     def _parse_stmt(self):
         """Считывает одну инструкцию"""
-        return self._parse_if() or self._parse_while() or self._parse_return() or self._parse_assignment()
+        return self._parse_if() or self._parse_while() or self._parse_return() \
+            or self._parse_assignment() or self._parse_exec_expr()
 
     def _parse_if(self):
         """Считывает условную инструкцию if"""
@@ -390,6 +391,15 @@ class Parser:
             return None
 
         return Assignment(identifier, expr)
+
+    def _parse_exec_expr(self):
+        """Считывает выражение, записанное как инструкция"""
+        old_cursor = self.cursor
+        expr = self._parse_expr()
+        if not expr or not self._match(";"):
+            self.cursor = old_cursor
+            return None
+        return expr
 
     def _parse_expr(self):
         """Считывает выражение сравнения или арифметическое выражение"""

@@ -109,6 +109,8 @@ def process_stmt(statement: Stmt, f_gen: FuncCodeGenerator):
         case Return(expr):
             process_expr(expr, f_gen)
             f_gen.emit_return("rax")
+        case Expr():
+            process_expr(statement, f_gen)
 
 def process_block(block: Block | None, f_gen: FuncCodeGenerator):
     """Обходит AST блока (списка инструкций) и генерирует assembler-код для каждой инструкции"""

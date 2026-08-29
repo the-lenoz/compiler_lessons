@@ -9,7 +9,7 @@ decl_args = id ',' decl_args | id | ''
 
 block = stmt block | stmt
 
-stmt = if | while | assignment | return
+stmt = if | while | assignment | return | exec_expr
 
 if = 'if' paren_expr '{' block '}'
 while = 'while' paren_expr '{' block '}'
@@ -17,6 +17,8 @@ while = 'while' paren_expr '{' block '}'
 assignment = id '=' logical ';'
 
 return = 'return' logical ';'
+
+exec_expr = expr ';'
 
 expr = eq | lt | gt | lte | gte | arith
 
