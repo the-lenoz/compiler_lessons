@@ -13,7 +13,7 @@
 3. [полноценная арифметика](lesson03/README.md)
 4. [переменные в стеке](lesson04/README.md)
 5. [циклы и ветвления](lesson05/README.md)
-6. [Функции](lesson06/README.md)
+6. [функции и вызовы](lesson06/README.md)
 
 ---
 ## Установка на Windows
