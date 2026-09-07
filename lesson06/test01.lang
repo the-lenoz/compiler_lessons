@@ -11,9 +11,7 @@ fn fib_naive(N)
   return fib_naive(N - 1) + fib_naive(N - 2);
 }
 
-fn putchar(c);
-
-fn main()
+fn print_hello_world()
 {
   putchar(72);
   putchar(101);
@@ -29,6 +27,11 @@ fn main()
   putchar(100);
   putchar(33);
   putchar(10);
+}
+
+fn main()
+{
+  print_hello_world();
 
   return fib_naive(14);
 }

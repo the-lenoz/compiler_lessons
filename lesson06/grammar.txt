@@ -14,9 +14,9 @@ stmt = if | while | assignment | return | exec_expr
 if = 'if' paren_expr '{' block '}'
 while = 'while' paren_expr '{' block '}'
 
-assignment = id '=' logical ';'
+assignment = id '=' expr ';'
 
-return = 'return' logical ';'
+return = 'return' expr ';'
 
 exec_expr = expr ';'
 

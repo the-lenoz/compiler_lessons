@@ -1,4 +1,51 @@
 
+
+fn main()
+{
+  print("Hello, world!\n");
+  return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 fn print_digit(n)
 {
   if (n == 0) { print("0"); }
@@ -36,20 +83,5 @@ fn print_int(n)
     print_int(next);
   }
   print_digit(mod);
-  return 0;
-}
-
-fn main()
-{
-  i = 0;
-  arr = ([0, 1, 4, 9, 16, 25, 36, 49, 64, 81]);
-  while (i < 10)
-  {
-    print_int(i);
-    print(" squared is ");
-    print_int(arr[i]);
-    print("\n");
-    i = i + 1;
-  }
   return 0;
 }
