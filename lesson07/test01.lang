@@ -1,0 +1,55 @@
+
+fn print_digit(n)
+{
+  if (n == 0) { print("0"); }
+  if (n == 1) { print("1"); }
+  if (n == 2) { print("2"); }
+  if (n == 3) { print("3"); }
+  if (n == 4) { print("4"); }
+  if (n == 5) { print("5"); }
+  if (n == 6) { print("6"); }
+  if (n == 7) { print("7"); }
+  if (n == 8) { print("8"); }
+  if (n == 9) { print("9"); }
+  return 0;
+}
+
+fn print_int(n)
+{
+  if (n < 0)
+  {
+    print("-");
+    print_int(0 - n);
+    return 0;
+  }
+  if ( n < 10)
+  {
+    print_digit(n);
+    return 0;
+  }
+
+  next = n / 10;
+  mod = n - next * 10;
+
+  if (next)
+  {
+    print_int(next);
+  }
+  print_digit(mod);
+  return 0;
+}
+
+fn main()
+{
+  i = 0;
+  arr = ([0, 1, 4, 9, 16, 25, 36, 49, 64, 81]);
+  while (i < 10)
+  {
+    print_int(i);
+    print(" squared is ");
+    print_int(arr[i]);
+    print("\n");
+    i = i + 1;
+  }
+  return 0;
+}

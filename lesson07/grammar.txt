@@ -1,0 +1,60 @@
+program = func_block
+
+func_block = func_decl func_block | func_decl
+func_decl = f_decl ';' | f_def
+f_def = f_decl '{' block '}'
+
+f_decl = 'fn' id '(' decl_args ')'
+decl_args = id ',' decl_args | id | ''
+
+block = stmt block | stmt
+
+stmt = if | while | assignment | return | exec_expr
+
+if = 'if' paren_expr '{' block '}'
+while = 'while' paren_expr '{' block '}'
+
+assignment = lvalue '=' expr ';'
+lvalue = array_access | id;
+
+return = 'return' expr ';'
+
+exec_expr = expr ';'
+
+expr = eq | lt | gt | lte | gte | arith
+
+eq = arith '==' expr
+lt = arith '<' expr
+gt = arith '>' expr
+lte = arith '<=' expr
+gte = arith '>=' expr
+
+arith = sum | sub | term
+
+sum = term '+' arith
+sub = term '-' arith
+
+term = mul | div | atom
+
+mul = atom '*' term
+div = atom '/' term
+
+atom = paren_expr | str_const | array_const | number | call | arr_access | id
+
+paren_expr = '(' expr ')'
+
+str_const = '"' ... '"'
+
+array = '[' comma_vals ']'
+
+call = id '(' comma_vals ')'
+
+comma_vals = expr ',' comma_vals | expr | ''
+
+arr_access = id '[' expr ']'
+
+### id и number парсим просто циклом
+number = -?[0-9]+
+id = [A-Za-z_][A-Za-z_0-9]*
+
+
