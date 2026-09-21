@@ -332,4 +332,4 @@ cython_debug/
 # Our compiler outputs
 .s
 .o
-lesson*/test*[^.]*
+lesson*/test*[^.lang]
