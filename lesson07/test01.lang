@@ -2,7 +2,21 @@
 
 fn main()
 {
-  print("Hello, world!\n");
+  str = "Hello, world!\n";
+
+  print(str);
+
+  fib = [1, 1, 2, 3, 5, 8, 13, 21];
+
+  i = 0;
+  while (i < 8)
+  {
+    fib[i] = 1;
+    print_int( fib[i] );
+    print("\n");
+    i = i + 1;
+  }
+
   return 0;
 }
 
