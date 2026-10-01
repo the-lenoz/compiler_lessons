@@ -1,0 +1,483 @@
+fn print(i64 str) -> i64;
+
+fn print_digit(i64 d) -> i64 {
+    if (d == 0) { print("0"); return 0; }
+    if (d == 1) { print("1"); return 0; }
+    if (d == 2) { print("2"); return 0; }
+    if (d == 3) { print("3"); return 0; }
+    if (d == 4) { print("4"); return 0; }
+    if (d == 5) { print("5"); return 0; }
+    if (d == 6) { print("6"); return 0; }
+    if (d == 7) { print("7"); return 0; }
+    if (d == 8) { print("8"); return 0; }
+    if (d == 9) { print("9"); return 0; }
+    return 0;
+}
+
+fn print_i64(i64 x) -> i64 {
+    i64 q;
+    i64 digit;
+
+    if (x < 0) {
+        print("-");
+        print_i64(0 - x);
+        return 0;
+    }
+
+    if (x < 10) {
+        print_digit(x);
+        return 0;
+    }
+
+    q = x / 10;
+    digit = x - q * 10;
+
+    print_i64(q);
+    print_digit(digit);
+
+    return 0;
+}
+
+fn assert_i64(i64 name, i64 actual, i64 expected) -> i64 {
+    if (actual == expected) {
+        print("[PASS] ");
+        print(name);
+        print(" = ");
+        print_i64(actual);
+        print("\n");
+        return 0;
+    }
+
+    print("[FAIL] ");
+    print(name);
+    print("\n       expected: ");
+    print_i64(expected);
+    print("\n       actual:   ");
+    print_i64(actual);
+    print("\n");
+
+    return 1;
+}
+
+fn assert_fp64(i64 name, fp64 actual, fp64 expected) -> i64 {
+    if (actual == expected) {
+        print("[PASS] ");
+        print(name);
+        print("\n");
+        return 0;
+    }
+
+    print("[FAIL] ");
+    print(name);
+    print(" (fp64 mismatch)\n");
+    return 1;
+}
+
+fn assert_fp32(i64 name, fp32 actual, fp32 expected) -> i64 {
+    if (actual == expected) {
+        print("[PASS] ");
+        print(name);
+        print("\n");
+        return 0;
+    }
+
+    print("[FAIL] ");
+    print(name);
+    print(" (fp32 mismatch)\n");
+    return 1;
+}
+
+fn fib(i64 n) -> i64 {
+    i64 a;
+    i64 b;
+    i64 next;
+    i64 i;
+
+    a = 0;
+    b = 1;
+    i = 0;
+
+    while (i < n) {
+        next = a + b;
+        a = b;
+        b = next;
+        i = i + 1;
+    }
+
+    return a;
+}
+
+fn factorial(i64 n) -> i64 {
+    if (n <= 1) {
+        return 1;
+    }
+
+    return n * factorial(n - 1);
+}
+
+fn sum_squares(i64 n) -> i64 {
+    i64 result;
+    i64 i;
+
+    result = 0;
+    i = 1;
+
+    while (i <= n) {
+        result = result + i * i;
+        i = i + 1;
+    }
+
+    return result;
+}
+
+fn swap(i64 a, i64 b) -> i64 {
+    i64 tmp;
+
+    tmp = *i64 a;
+    *i64 a = *i64 b;
+    *i64 b = tmp;
+
+    return 0;
+}
+
+fn clamp_i32(i32 x, i32 lo, i32 hi) -> i32 {
+    if (x < lo) {
+        return lo;
+    }
+
+    if (x > hi) {
+        return hi;
+    }
+
+    return x;
+}
+
+fn average(i64 a, i64 b) -> fp64 {
+    fp64 x;
+    fp64 y;
+
+    x = static_cast<fp64>(a);
+    y = static_cast<fp64>(b);
+
+    return (x + y) / static_cast<fp64>(2);
+}
+
+fn abi_int6(
+    i64 a, i64 b, i64 c,
+    i64 d, i64 e, i64 f
+) -> i64 {
+    return a
+        + b * 10
+        + c * 100
+        + d * 1000
+        + e * 10000
+        + f * 100000;
+}
+
+fn abi_int10(
+    i64 a, i64 b, i64 c, i64 d, i64 e,
+    i64 f, i64 g, i64 h, i64 i, i64 j
+) -> i64 {
+    return a
+        + b * 10
+        + c * 100
+        + d * 1000
+        + e * 10000
+        + f * 100000
+        + g * 1000000
+        + h * 10000000
+        + i * 100000000
+        + j * 1000000000;
+}
+
+fn abi_fp8(
+    fp64 a, fp64 b, fp64 c, fp64 d,
+    fp64 e, fp64 f, fp64 g, fp64 h
+) -> fp64 {
+    return a + b + c + d + e + f + g + h;
+}
+
+fn abi_fp10(
+    fp64 a, fp64 b, fp64 c, fp64 d, fp64 e,
+    fp64 f, fp64 g, fp64 h, fp64 i, fp64 j
+) -> fp64 {
+    return a + b + c + d + e
+         + f + g + h + i + j;
+}
+
+fn abi_mixed(
+    i64 a1, fp64 f1,
+    i64 a2, fp64 f2,
+    i64 a3, fp64 f3,
+    i64 a4, fp64 f4,
+    i64 a5, fp64 f5,
+    i64 a6, fp64 f6,
+    i64 a7, fp64 f7,
+    fp64 f8, fp64 f9
+) -> i64 {
+    i64 fp_sum;
+
+    fp_sum = static_cast<i64>(
+        f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8 + f9
+    );
+
+    return a1
+        + a2 * 10
+        + a3 * 100
+        + a4 * 1000
+        + a5 * 10000
+        + a6 * 100000
+        + a7 * 1000000
+        + fp_sum * 10000000;
+}
+
+fn abi_mixed_stack(
+    i64 a1, fp64 f1,
+    i64 a2, fp64 f2,
+    i64 a3, fp64 f3,
+    i64 a4, fp64 f4,
+    i64 a5, fp64 f5,
+    i64 a6, fp64 f6,
+    i64 a7, fp64 f7,
+    fp64 f8, fp64 f9
+) -> i64 {
+    i64 result;
+
+    result = a7 * 1000
+           + static_cast<i64>(f7) * 100
+           + static_cast<i64>(f8) * 10
+           + static_cast<i64>(f9);
+
+    return result;
+}
+
+fn abi_mixed_fp32(
+    i32 a,
+    fp32 b,
+    i64 c,
+    fp64 d,
+    i8 e,
+    fp32 f,
+    i64 g,
+    fp64 h
+) -> i64 {
+    return static_cast<i64>(a)
+        + static_cast<i64>(b) * 10
+        + c * 100
+        + static_cast<i64>(d) * 1000
+        + static_cast<i64>(e) * 10000
+        + static_cast<i64>(f) * 100000
+        + g * 1000000
+        + static_cast<i64>(h) * 10000000;
+}
+
+fn abi_nested(i64 a, i64 b, i64 c, i64 d,
+              i64 e, i64 f, i64 g, i64 h) -> i64 {
+    return abi_int6(a, b, c, d, e, f) + g + h;
+}
+
+fn main() -> i64 {
+    i64 failures;
+    i64 x;
+    i64 y;
+    i64 px;
+    i64 py;
+    i32 small;
+    fp64 avg;
+
+    failures = 0;
+
+    print("\n========================================\n");
+    print("       COMPILER INTEGRATION TEST\n");
+    print("========================================\n");
+
+    print("\n[1] ARITHMETIC AND CONTROL FLOW\n");
+
+    failures = failures + assert_i64("fib(12)", fib(12), 144);
+    failures = failures + assert_i64("factorial(6)", factorial(6), 720);
+    failures = failures + assert_i64("sum_squares(10)", sum_squares(10), 385);
+
+    print("\n[2] POINTERS AND MEMORY\n");
+
+    x = 10;
+    y = 42;
+
+    px = &x;
+    py = &y;
+
+    swap(px, py);
+
+    failures = failures + assert_i64("swap x", x, 42);
+    failures = failures + assert_i64("swap y", y, 10);
+    failures = failures + assert_i64("deref px", *i64 px, 42);
+    failures = failures + assert_i64("deref py", *i64 py, 10);
+
+    print("\n[3] TYPES AND CASTS\n");
+
+    small = clamp_i32(
+        static_cast<i32>(300),
+        static_cast<i32>(0),
+        static_cast<i32>(255)
+    );
+
+    avg = average(x, y);
+
+    failures = failures + assert_i64(
+        "clamp i32",
+        static_cast<i64>(small),
+        255
+    );
+
+    failures = failures + assert_fp64(
+        "average fp64",
+        avg,
+        static_cast<fp64>(26)
+    );
+
+    failures = failures + assert_i64(
+        "fp64 to i64",
+        static_cast<i64>(avg),
+        26
+    );
+
+    failures = failures + assert_fp32(
+        "i64 to fp32",
+        static_cast<fp32>(42),
+        static_cast<fp32>(42)
+    );
+
+    print("\n[4] ABI INTEGER REGISTERS\n");
+
+    failures = failures + assert_i64(
+        "6 integer arguments",
+        abi_int6(1, 2, 3, 4, 5, 6),
+        654321
+    );
+
+    print("\n[5] ABI INTEGER STACK\n");
+
+    failures = failures + assert_i64(
+        "10 integer arguments",
+        abi_int10(1, 2, 3, 4, 5, 6, 7, 8, 9, 1),
+        1987654321
+    );
+
+    print("\n[6] ABI FP REGISTERS\n");
+
+    failures = failures + assert_fp64(
+        "8 fp64 arguments",
+        abi_fp8(
+            static_cast<fp64>(1),
+            static_cast<fp64>(2),
+            static_cast<fp64>(3),
+            static_cast<fp64>(4),
+            static_cast<fp64>(5),
+            static_cast<fp64>(6),
+            static_cast<fp64>(7),
+            static_cast<fp64>(8)
+        ),
+        static_cast<fp64>(36)
+    );
+
+    print("\n[7] ABI FP STACK\n");
+
+    failures = failures + assert_fp64(
+        "10 fp64 arguments",
+        abi_fp10(
+            static_cast<fp64>(1),
+            static_cast<fp64>(2),
+            static_cast<fp64>(3),
+            static_cast<fp64>(4),
+            static_cast<fp64>(5),
+            static_cast<fp64>(6),
+            static_cast<fp64>(7),
+            static_cast<fp64>(8),
+            static_cast<fp64>(9),
+            static_cast<fp64>(10)
+        ),
+        static_cast<fp64>(55)
+    );
+
+    print("\n[8] ABI MIXED ARGUMENTS\n");
+
+    failures = failures + assert_i64(
+        "mixed integer/fp64",
+        abi_mixed(
+            1, static_cast<fp64>(1),
+            2, static_cast<fp64>(2),
+            3, static_cast<fp64>(3),
+            4, static_cast<fp64>(4),
+            5, static_cast<fp64>(5),
+            6, static_cast<fp64>(6),
+            7, static_cast<fp64>(7),
+               static_cast<fp64>(8),
+               static_cast<fp64>(9)
+        ),
+        457654321
+    );
+
+    print("\n[9] ABI MIXED STACK OFFSETS\n");
+
+    failures = failures + assert_i64(
+        "mixed stack arguments",
+        abi_mixed_stack(
+            1, static_cast<fp64>(1),
+            2, static_cast<fp64>(2),
+            3, static_cast<fp64>(3),
+            4, static_cast<fp64>(4),
+            5, static_cast<fp64>(5),
+            6, static_cast<fp64>(6),
+            7, static_cast<fp64>(7),
+               static_cast<fp64>(8),
+               static_cast<fp64>(9)
+        ),
+        7789
+    );
+
+    print("\n[10] ABI MIXED WIDTHS\n");
+
+    failures = failures + assert_i64(
+        "i8/i32/i64/fp32/fp64",
+        abi_mixed_fp32(
+            static_cast<i32>(1),
+            static_cast<fp32>(2),
+            3,
+            static_cast<fp64>(4),
+            static_cast<i8>(5),
+            static_cast<fp32>(6),
+            7,
+            static_cast<fp64>(8)
+        ),
+        87654321
+    );
+
+    print("\n[11] NESTED FUNCTION CALLS\n");
+
+    failures = failures + assert_i64(
+        "nested ABI calls",
+        abi_nested(1, 2, 3, 4, 5, 6, 7, 8),
+        654336
+    );
+
+    failures = failures + assert_i64(
+        "nested recursion",
+        factorial(fib(6)),
+        40320
+    );
+
+    print("\n========================================\n");
+
+    if (failures == 0) {
+        print("ALL TESTS PASSED\n");
+    }
+
+    if (failures > 0) {
+        print("FAILED TESTS: ");
+        print_i64(failures);
+        print("\n");
+    }
+
+    print("========================================\n");
+
+    return failures;
+}

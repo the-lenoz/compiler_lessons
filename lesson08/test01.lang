@@ -1,43 +1,28 @@
 
-fn increment(var_ptr)
+fn memcpy(dst, src, n_qwords)
 {
-  print("Incrementing var on: ");
-  print_int(var_ptr);
-  print(" with value: ");
-  print_int(*var_ptr);
-  print("\n\n");
-  *var_ptr = (*var_ptr) + 1;
+  i = 0;
+  while(i < n_qwords)
+  {
+    *(dst + i * 8) = *(src + i * 8);
+    i = i + 1;
+  }
 }
-
 
 fn main()
 {
-  x = 1;
+  str = "Hello, world!\n";
 
-  print_int(x);
-  print("\n");
+  name = "Alexei\n";
 
-  increment(&x);
+  print(str);
 
-  print_int(x);
-  print("\n");
+  memcpy(str + 7, name, 1);
+
+  print(str);
 
   return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
