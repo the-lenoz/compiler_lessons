@@ -574,7 +574,7 @@ class Parser:
             self.cursor = old_cursor
             return None
 
-        ptr = self._parse_expr()
+        ptr = self._parse_atom()
         if not ptr:
             self.cursor = old_cursor
             return None

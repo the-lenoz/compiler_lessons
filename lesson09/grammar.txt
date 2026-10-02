@@ -56,7 +56,7 @@ call = id '(' comma_vals ')'
 comma_vals = expr ',' comma_vals | expr | ''
 
 ref = '&' lvalue
-deref = '*' typename expr
+deref = '*' typename atom
 
 ### id и number парсим просто циклом
 number = -?[0-9]+
