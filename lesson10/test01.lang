@@ -1,0 +1,389 @@
+fn print(i64 str) -> i64;
+
+struct Point {
+    i64 x,
+    i64 y
+};
+
+struct Person {
+    i64 age,
+    i64 score,
+    i64 id
+};
+
+struct Rect {
+    Point min,
+    Point max
+};
+
+fn assert_i64(i64 name, i64 actual, i64 expected) -> i64 {
+    if (actual == expected) {
+        print("[PASS] ");
+        print(name);
+        print("\n");
+        return 0;
+    }
+
+    print("[FAIL] ");
+    print(name);
+    print("\n");
+
+    return 1;
+}
+
+fn point_sum(i64 p) -> i64 {
+    return (*Point p).x + (*Point p).y;
+}
+
+fn point_distance_square(i64 p) -> i64 {
+    return (*Point p).x * (*Point p).x
+         + (*Point p).y * (*Point p).y;
+}
+
+fn move_point(i64 p, i64 dx, i64 dy) -> i64 {
+    (*Point p).x = (*Point p).x + dx;
+    (*Point p).y = (*Point p).y + dy;
+
+    return 0;
+}
+
+fn swap_point_coordinates(i64 p) -> i64 {
+    i64 tmp;
+
+    tmp = (*Point p).x;
+    (*Point p).x = (*Point p).y;
+    (*Point p).y = tmp;
+
+    return 0;
+}
+
+fn person_score(i64 p) -> i64 {
+    return (*Person p).age * 1000
+         + (*Person p).score * 10
+         + (*Person p).id;
+}
+
+fn rect_width(i64 r) -> i64 {
+    return (*Rect r).max.x - (*Rect r).min.x;
+}
+
+fn rect_height(i64 r) -> i64 {
+    return (*Rect r).max.y - (*Rect r).min.y;
+}
+
+fn rect_area(i64 r) -> i64 {
+    return rect_width(r) * rect_height(r);
+}
+
+fn main() -> i64 {
+    Point p;
+    Point q;
+    Person person;
+    Rect rect;
+
+    i64 p_ptr;
+    i64 q_ptr;
+    i64 person_ptr;
+    i64 rect_ptr;
+
+    i64 failures;
+
+    failures = 0;
+
+    print("\n=== STRUCT TESTS ===\n");
+
+    print("\n[1] BASIC FIELD ACCESS\n");
+
+    p.x = 10;
+    p.y = 20;
+
+    failures = failures + assert_i64(
+        "p.x",
+        p.x,
+        10
+    );
+
+    failures = failures + assert_i64(
+        "p.y",
+        p.y,
+        20
+    );
+
+    failures = failures + assert_i64(
+        "p.x + p.y",
+        p.x + p.y,
+        30
+    );
+
+    print("\n[2] POINTER TO STRUCT\n");
+
+    p_ptr = &p;
+
+    failures = failures + assert_i64(
+        "(*Point p_ptr).x",
+        (*Point p_ptr).x,
+        10
+    );
+
+    failures = failures + assert_i64(
+        "(*Point p_ptr).y",
+        (*Point p_ptr).y,
+        20
+    );
+
+    (*Point p_ptr).x = 100;
+    (*Point p_ptr).y = 200;
+
+    failures = failures + assert_i64(
+        "p.x after dereference",
+        p.x,
+        100
+    );
+
+    failures = failures + assert_i64(
+        "p.y after dereference",
+        p.y,
+        200
+    );
+
+    print("\n[3] STRUCT POINTER AS FUNCTION ARGUMENT\n");
+
+    failures = failures + assert_i64(
+        "point_sum",
+        point_sum(p_ptr),
+        300
+    );
+
+    failures = failures + assert_i64(
+        "point_distance_square",
+        point_distance_square(p_ptr),
+        50000
+    );
+
+    print("\n[4] MODIFY STRUCT THROUGH FUNCTION\n");
+
+    move_point(p_ptr, 5, 7);
+
+    failures = failures + assert_i64(
+        "p.x after move",
+        p.x,
+        105
+    );
+
+    failures = failures + assert_i64(
+        "p.y after move",
+        p.y,
+        207
+    );
+
+    swap_point_coordinates(p_ptr);
+
+    failures = failures + assert_i64(
+        "p.x after swap",
+        p.x,
+        207
+    );
+
+    failures = failures + assert_i64(
+        "p.y after swap",
+        p.y,
+        105
+    );
+
+    print("\n[5] TWO STRUCT OBJECTS\n");
+
+    q.x = 1;
+    q.y = 2;
+
+    q_ptr = &q;
+
+    failures = failures + assert_i64(
+        "q.x",
+        q.x,
+        1
+    );
+
+    failures = failures + assert_i64(
+        "q.y",
+        q.y,
+        2
+    );
+
+    move_point(q_ptr, 10, 20);
+
+    failures = failures + assert_i64(
+        "q.x after move",
+        q.x,
+        11
+    );
+
+    failures = failures + assert_i64(
+        "q.y after move",
+        q.y,
+        22
+    );
+
+    failures = failures + assert_i64(
+        "p unchanged",
+        point_sum(p_ptr),
+        312
+    );
+
+    print("\n[6] PERSON STRUCT\n");
+
+    person.age = 25;
+    person.score = 73;
+    person.id = 42;
+
+    person_ptr = &person;
+
+    failures = failures + assert_i64(
+        "person.age",
+        (*Person person_ptr).age,
+        25
+    );
+
+    failures = failures + assert_i64(
+        "person.score",
+        (*Person person_ptr).score,
+        73
+    );
+
+    failures = failures + assert_i64(
+        "person.id",
+        (*Person person_ptr).id,
+        42
+    );
+
+    failures = failures + assert_i64(
+        "person_score",
+        person_score(person_ptr),
+        25772
+    );
+
+    print("\n[7] NESTED STRUCTS\n");
+
+    rect.min.x = 10;
+    rect.min.y = 20;
+
+    rect.max.x = 110;
+    rect.max.y = 80;
+
+    rect_ptr = &rect;
+
+    failures = failures + assert_i64(
+        "rect.min.x",
+        rect.min.x,
+        10
+    );
+
+    failures = failures + assert_i64(
+        "rect.min.y",
+        rect.min.y,
+        20
+    );
+
+    failures = failures + assert_i64(
+        "rect.max.x",
+        rect.max.x,
+        110
+    );
+
+    failures = failures + assert_i64(
+        "rect.max.y",
+        rect.max.y,
+        80
+    );
+
+    failures = failures + assert_i64(
+        "rect width",
+        rect_width(rect_ptr),
+        100
+    );
+
+    failures = failures + assert_i64(
+        "rect height",
+        rect_height(rect_ptr),
+        60
+    );
+
+    failures = failures + assert_i64(
+        "rect area",
+        rect_area(rect_ptr),
+        6000
+    );
+
+    print("\n[8] NESTED STRUCT THROUGH POINTER\n");
+
+    failures = failures + assert_i64(
+        "(*Rect rect_ptr).min.x",
+        (*Rect rect_ptr).min.x,
+        10
+    );
+
+    failures = failures + assert_i64(
+        "(*Rect rect_ptr).max.y",
+        (*Rect rect_ptr).max.y,
+        80
+    );
+
+    (*Rect rect_ptr).min.x = 25;
+    (*Rect rect_ptr).min.y = 35;
+
+    (*Rect rect_ptr).max.x = 125;
+    (*Rect rect_ptr).max.y = 95;
+
+    failures = failures + assert_i64(
+        "nested pointer modification",
+        rect_area(rect_ptr),
+        6000
+    );
+
+    print("\n[9] STRUCT LVALUES\n");
+
+    p.x = q.y;
+    p.y = q.x;
+
+    failures = failures + assert_i64(
+        "struct field to field",
+        p.x,
+        22
+    );
+
+    failures = failures + assert_i64(
+        "struct field to field 2",
+        p.y,
+        11
+    );
+
+    (*Point p_ptr).x = (*Point q_ptr).y + 100;
+
+    failures = failures + assert_i64(
+        "pointer field expression",
+        p.x,
+        122
+    );
+
+    print("\n[10] COMPLEX FIELD EXPRESSIONS\n");
+
+    failures = failures + assert_i64(
+        "complex expression",
+        rect.max.x * rect.max.y
+        - rect.min.x * rect.min.y,
+        11000
+    );
+
+    print("\n=========================\n");
+
+    if (failures == 0) {
+        print("ALL STRUCT TESTS PASSED\n");
+    }
+
+    if (failures > 0) {
+        print("FAILED TESTS\n");
+    }
+
+    print("=========================\n");
+
+    return failures;
+}
