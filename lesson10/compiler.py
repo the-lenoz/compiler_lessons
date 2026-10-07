@@ -298,7 +298,7 @@ def process_f_def(definition: FDef, codegen: CodeGenerator):
     descr = FuncDescription(
         name=definition.decl.name.value,
         return_type=BuiltinType.from_name(definition.decl.return_type_name.value),
-        linkage="extern",
+        linkage="intern",
         args=process_decl_args(definition.decl.args)
     )
     func_type_table[descr.name] = descr.return_type

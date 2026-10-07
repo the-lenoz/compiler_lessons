@@ -12,8 +12,8 @@ section .data
 
 program_prolog = """
 section .text                       ; указываем, что дальше идёт код. ".text" - имя секции кода по стандарту
-    global _start                   ; делаем метку _start видимой для сборщика исполняемого файла
-
+"""
+libc_replace = """    global _start                   ; делаем метку _start видимой для сборщика исполняемого файла
 print:
     mov rsi, rdi
     xor edx, edx
@@ -322,7 +322,8 @@ class CodeGenerator:
                 [program_data_section] +
                 self.data_body +
                 [program_prolog] +
-                [f"    extern {name}\n" for name, kind in self.funcs.items() if kind == "extern"] +
+                [f"    {"extern" if descr.linkage == "extern" else "global"} {name}\n"
+                    for name, descr in self.funcs.items()] +
                 self.program_body
             ))
 
@@ -701,13 +702,15 @@ class FuncCodeGenerator:
         return [
              "    push rbp\n",
              "    mov rbp, rsp\n",
-            f"    sub rsp, {bp_offset}\n" if bp_offset else ""
+            f"    sub rsp, {bp_offset}\n" if bp_offset else "",
+             "    push rbx\n"
         ]
 
     @staticmethod
     def generate_leave():
         """Генерирует эпилог функции - восстановление стека"""
         return [
+            "    pop rbx\n"
             "    mov rsp, rbp\n",
             "    pop rbp\n"
             "    ret\n"
